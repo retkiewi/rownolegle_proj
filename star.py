@@ -20,16 +20,19 @@ class Star():
     def __str__(self) -> str:
         return f"Star at position <{self.position[0]}, {self.position[1]}, {self.position[2]}> with velocity <{self.velocity[0]}, {self.velocity[1]}, {self.velocity[2]}>m/s and mass of {self.mass}kg"
 
-    def calculate_attraction(self, other: 'Star') -> np.ndarray:
-        r = get_distance(self.position, other.position)
-        if r <= 00.1:
-            return 0
-        attraction = G*other.mass*(other.position-self.position)/r
+    def calculate_attraction(self, others: list['Star']) -> np.ndarray:
+        attraction = [0, 0, 0]
+
+        for other in others:
+            r = get_distance(self.position, other.position)
+            if r <= 00.1:
+                continue
+            attraction = G*other.mass*(other.position-self.position)/r + attraction
+
         return attraction
 
-    def tick_velocity(self, other_stars: list['Star'], time_step = TIME_STEP):
-        for attraction in map(self.calculate_attraction, other_stars):
-            self.velocity = self.velocity + attraction*time_step
+    def tick_velocity(self, attraction, time_step = TIME_STEP):
+        self.velocity = self.velocity + attraction*time_step
 
     def tick_position(self, time_step = TIME_STEP):
         self.position = self.position + self.velocity*time_step
